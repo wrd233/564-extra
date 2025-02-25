@@ -1,0 +1,51 @@
+{
+  "originHash" : "1bfc7de0bf9f637a60cc64d9e5022b24a7dc5924acd0b7fbc88f084c5f10e8a4",
+  "pins" : [
+    {
+      "identity" : "ece564login",
+      "kind" : "remoteSourceControl",
+      "location" : "git@gitlab.oit.duke.edu:kits/ECE-564-01-Sp25/ece564login.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "474e069d58544b8f8e25cff027fa283e4d903e6a"
+      }
+    },
+    {
+      "identity" : "loadingbutton",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/changemin/LoadingButton.git",
+      "state" : {
+        "revision" : "5045668df822a04c248a9b40aca888a4d37f275a",
+        "version" : "1.1.2"
+      }
+    },
+    {
+      "identity" : "lottie-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/airbnb/lottie-spm.git",
+      "state" : {
+        "revision" : "8c6edf4f0fa84fe9c058600a4295eb0c01661c69",
+        "version" : "4.5.1"
+      }
+    },
+    {
+      "identity" : "paper-onboarding",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Ramotion/paper-onboarding.git",
+      "state" : {
+        "revision" : "c36df080b1001c385cc14c85f3b1c5ea36531fd0",
+        "version" : "6.1.5"
+      }
+    },
+    {
+      "identity" : "swiftfulloadingindicators",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftfulThinking/SwiftfulLoadingIndicators.git",
+      "state" : {
+        "revision" : "85858c0246dcd781228301f9928519f75ce89758",
+        "version" : "0.0.4"
+      }
+    }
+  ],
+  "version" : 3
+}

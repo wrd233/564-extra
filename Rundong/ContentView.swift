@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import ECE564Login
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
