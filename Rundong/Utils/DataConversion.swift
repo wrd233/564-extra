@@ -47,3 +47,23 @@ func convertDTOsToDukePersons(dtoArray: [DukePersonDTO], context: ModelContext) 
         print("保存转换后的记录时出错: \(error)")
     }
 }
+
+// 将 DukePerson 转换为 DukePersonDTO
+func convertDukePersonToDTO(person: DukePerson) -> DukePersonDTO {
+    return DukePersonDTO(
+        DUID: person.DUID,
+        netID: person.netID,
+        fName: person.fName,
+        lName: person.lName,
+        from: person.from,
+        hobby: person.hobby,
+        languages: person.languages,
+        moviegenre: person.moviegenre,
+        gender: person.gender.rawValue,
+        role: person.role.rawValue,
+        program: person.program.rawValue,
+        plan: person.plan.rawValue,
+        team: person.team,
+        picture: person.picture
+    )
+}

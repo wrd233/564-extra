@@ -64,37 +64,39 @@ class NetworkService {
         return try decoder.decode(DukePersonDTO.self, from: data)
     }
     
-//    func upload(person: DukePerson) async -> Bool {
-//        guard let url = URL(string: "http://ece564.rc.duke.edu:8080/entries/\(netID)") else {
-//            return false
-//        }
-//        var request = URLRequest(url: url)
-//        request.setValue(authHeader, forHTTPHeaderField: "Authorization")
-//        
-//        request.httpMethod = "PUT"
-//        
-//        // add JSON body
-//        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-//        do {
-//            request.httpBody = try JSONEncoder().encode(person)
-//            let (_, response) = try await URLSession.shared.data(for: request)
-//            
-//            guard let httpResponse = response as? HTTPURLResponse else {
-//                return false
-//            }
-//            
-//            print("Request URL:", request.url?.absoluteString ?? "Invalid URL")
-//            print("Request Headers:", request.allHTTPHeaderFields ?? [:])
-//            print("Request Body:", String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "Empty Data")
-//            print("Server Response Status Code:", httpResponse.statusCode)
-//            
-//            return (200...299).contains(httpResponse.statusCode)
-//        } catch {
-//            print("Upload failed:", error.localizedDescription)
-//            return false
-//        }
-//        
-//    }
+    // TODO: 待测试
+    func upload(person: DukePerson) async -> Bool {
+        guard let url = URL(string: "http://ece564.rc.duke.edu:8080/entries/\(netID)") else {
+            return false
+        }
+        var request = URLRequest(url: url)
+        request.setValue(authHeader, forHTTPHeaderField: "Authorization")
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            // 先转换为 DTO
+            let dto = convertDukePersonToDTO(person: person)
+            // 编码 DTO，而不是直接编码 DukePerson
+            request.httpBody = try JSONEncoder().encode(dto)
+            let (_, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                return false
+            }
+            
+            print("Request URL:", request.url?.absoluteString ?? "Invalid URL")
+            print("Request Headers:", request.allHTTPHeaderFields ?? [:])
+            print("Request Body:", String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "Empty Data")
+            print("Server Response Status Code:", httpResponse.statusCode)
+            
+            return (200...299).contains(httpResponse.statusCode)
+        } catch {
+            print("Upload failed:", error.localizedDescription)
+            return false
+        }
+    }
+    
     
     // 批量下载所有人员数据
     func fetchAllEntriesDTO() async throws -> [DukePersonDTO] {
