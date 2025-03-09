@@ -11,19 +11,22 @@ import SwiftData
 struct PersonListView: View {
     @EnvironmentObject var vm: PersonListViewModel
     @Environment(\.modelContext) private var modelContext
-    @Query var persons: [DukePerson]
     
-    // Control other popups
+    // Use a simpler query with just DUID sorting
+    @Query(sort: \DukePerson.DUID) var persons: [DukePerson]
+    
+    // Control popups
     @State private var isShowingAddPerson = false
     @State private var isShowingDownloadOptions = false
+    @State private var isShowingSortOptions = false
     @State private var selectedPerson: DukePerson? = nil
     
-    // Filtered and grouped persons
+    // Computed properties broken down into smaller steps
     var filteredPersons: [DukePerson] {
         vm.filteredPersons(persons)
     }
     
-    var groupedPersons: [(role: Role, persons: [DukePerson])] {
+    var groupedPersons: [(key: String, persons: [DukePerson])] {
         vm.groupPersons(filteredPersons)
     }
     
@@ -33,23 +36,13 @@ struct PersonListView: View {
             SearchBar(searchText: $vm.searchText)
                 .padding(.top, 8)
             
-            // List view
+            // List content
             List {
-                ForEach(groupedPersons, id: \.role) { group in
-                    Section(header: Text(group.role.rawValue)) {
+                ForEach(groupedPersons, id: \.key) { group in
+                    Section(header: Text(group.key)) {
                         ForEach(group.persons, id: \.DUID) { person in
-                            NavigationLink {
-                                Text("Person detail coming soon")
-                            } label: {
-                                VStack(alignment: .leading) {
-                                    Text("\(person.fName) \(person.lName)")
-                                        .font(.headline)
-                                    Text("DUID: \(person.DUID)")
-                                        .font(.subheadline)
-                                    Text("NetID: \(person.netID)")
-                                        .font(.subheadline)
-                                }
-                                .padding(.vertical, 4)
+                            NavigationLink(destination: Text("Person detail coming soon")) {
+                                PersonListItem(person: person)
                             }
                             .swipeActions(edge: .trailing) {
                                 Button("Edit") {
@@ -76,10 +69,10 @@ struct PersonListView: View {
                     exit(0)
                 }
             }
-            // Sort button (placeholder for now)
+            // Sort button
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    // Sort functionality will be implemented later
+                    isShowingSortOptions = true
                 } label: {
                     Image(systemName: "arrow.up.arrow.down")
                 }
@@ -99,28 +92,36 @@ struct PersonListView: View {
                 }
             }
         }
+        .confirmationDialog("Sort By", isPresented: $isShowingSortOptions) {
+            ForEach(PersonListViewModel.SortOption.allCases, id: \.self) { option in
+                Button(option.rawValue) {
+                    vm.currentSortOption = option
+                }
+            }
+        }
         .confirmationDialog("Please choose a download option", isPresented: $isShowingDownloadOptions, titleVisibility: .visible) {
             Button("Replace") {
                 Task {
-                    await vm.downloadAll(context: modelContext, persons: persons)
+                    await vm.downloadAll(context: modelContext, persons: Array(persons))
                 }
             }
             Button("Update") {
                 Task {
-                    await vm.downloadAndUpdate(context: modelContext, persons: persons)
+                    await vm.downloadAndUpdate(context: modelContext, persons: Array(persons))
                 }
             }
             Button("Cancel", role: .cancel) { }
         }
         .overlay {
-            // Progress overlay
             if vm.isShowingProgress {
                 DownloadOverlayView(progress: $vm.progress, isShowing: $vm.isShowingProgress)
             }
         }
+        .sheet(isPresented: $isShowingAddPerson) {
+            AddPersonView()
+        }
         .onAppear {
-            // Initialize if needed
-            vm.loadInitialData(context: modelContext, persons: persons)
+            vm.loadInitialData(context: modelContext, persons: Array(persons))
         }
     }
     

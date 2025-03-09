@@ -14,8 +14,21 @@ class PersonListViewModel: ObservableObject {
     @Published var progress: Float = 0.0
     @Published var isShowingProgress = false
     
+    // Add sort option state
+    @Published var currentSortOption: SortOption = .role
+    
     // Download manager
     private let downloadService = DownloadManager()
+    
+    // Sort options enum
+    enum SortOption: String, CaseIterable {
+        case role = "Role"
+        case gender = "Gender"
+        case plan = "Plan"
+        case program = "Program"
+        case firstName = "First Name"
+        case lastName = "Last Name"
+    }
     
     // Called when SwiftData operations are needed
     func loadInitialData(context: ModelContext, persons: [DukePerson]) {
@@ -46,6 +59,20 @@ class PersonListViewModel: ObservableObject {
             } catch {
                 print("Failed to initialize default data: \(error)")
             }
+        }
+    }
+    
+    // Get the appropriate fetch descriptor based on current sort option
+    func getSortDescriptor() -> SortDescriptor<DukePerson> {
+        switch currentSortOption {
+        case .firstName:
+            return SortDescriptor(\DukePerson.fName)
+        case .lastName:
+            return SortDescriptor(\DukePerson.lName)
+        case .role, .gender, .plan, .program:
+            // For enum types, we'll handle sorting in the grouping function
+            // Just return a default sort by DUID
+            return SortDescriptor(\DukePerson.DUID)
         }
     }
     
@@ -192,25 +219,59 @@ class PersonListViewModel: ObservableObject {
         }
     }
     
-    // Group persons by role
-    func groupPersons(_ persons: [DukePerson]) -> [(role: Role, persons: [DukePerson])] {
-        let roleOrder: [Role] = [.Professor, .TA, .Student, .Other, .Unknown]
-        
-        // Create dictionary
-        var dict = [Role: [DukePerson]]()
-        for role in roleOrder {
-            dict[role] = []
+    // Group persons based on current sort option
+    func groupPersons(_ persons: [DukePerson]) -> [(key: String, persons: [DukePerson])] {
+        // If sorting by name, just return a single group with sorted persons
+        if currentSortOption == .firstName {
+            let sortedPersons = persons.sorted { $0.fName < $1.fName }
+            return [("All", sortedPersons)]
+        } else if currentSortOption == .lastName {
+            let sortedPersons = persons.sorted { $0.lName < $1.lName }
+            return [("All", sortedPersons)]
         }
         
-        // Fill with data
-        for person in persons {
-            dict[person.role]?.append(person)
+        // For other sort options, group by the appropriate property
+        var groups: [String: [DukePerson]] = [:]
+        
+        switch currentSortOption {
+        case .role:
+            for person in persons {
+                let key = person.role.rawValue
+                if groups[key] == nil {
+                    groups[key] = []
+                }
+                groups[key]?.append(person)
+            }
+        case .gender:
+            for person in persons {
+                let key = person.gender.rawValue
+                if groups[key] == nil {
+                    groups[key] = []
+                }
+                groups[key]?.append(person)
+            }
+        case .plan:
+            for person in persons {
+                let key = person.plan.rawValue
+                if groups[key] == nil {
+                    groups[key] = []
+                }
+                groups[key]?.append(person)
+            }
+        case .program:
+            for person in persons {
+                let key = person.program.rawValue
+                if groups[key] == nil {
+                    groups[key] = []
+                }
+                groups[key]?.append(person)
+            }
+        default:
+            groups["All"] = persons
         }
         
-        // Convert to ordered tuple array
-        return roleOrder.compactMap { role in
-            guard let persons = dict[role], !persons.isEmpty else { return nil }
-            return (role, persons)
-        }
+        // Convert dictionary to array of tuples
+        return groups.map { (key: $0.key, persons: $0.value) }
+            .sorted { $0.key < $1.key }
     }
 }
