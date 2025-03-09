@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		04CFDDC12D6E89BA0085F500 /* ECE564Login in Frameworks */ = {isa = PBXBuildFile; productRef = 04CFDDC02D6E89BA0085F500 /* ECE564Login */; };
+		049BD2162D7E4EC000BBE2CE /* ECE564Login in Frameworks */ = {isa = PBXBuildFile; productRef = 049BD2152D7E4EC000BBE2CE /* ECE564Login */; };
+		049BD21B2D7E503800BBE2CE /* KDCircularProgress in Frameworks */ = {isa = PBXBuildFile; productRef = 049BD21A2D7E503800BBE2CE /* KDCircularProgress */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,7 +70,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				04CFDDC12D6E89BA0085F500 /* ECE564Login in Frameworks */,
+				049BD2162D7E4EC000BBE2CE /* ECE564Login in Frameworks */,
+				049BD21B2D7E503800BBE2CE /* KDCircularProgress in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,7 +140,8 @@
 			);
 			name = Rundong;
 			packageProductDependencies = (
-				04CFDDC02D6E89BA0085F500 /* ECE564Login */,
+				049BD2152D7E4EC000BBE2CE /* ECE564Login */,
+				049BD21A2D7E503800BBE2CE /* KDCircularProgress */,
 			);
 			productName = Rundong;
 			productReference = 04CFDCEB2D6E6EC90085F500 /* Rundong.app */;
@@ -223,7 +226,8 @@
 			mainGroup = 04CFDCE22D6E6EC90085F500;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				04CFDDBF2D6E89BA0085F500 /* XCRemoteSwiftPackageReference "ece564login" */,
+				049BD2142D7E4EC000BBE2CE /* XCRemoteSwiftPackageReference "ece564login" */,
+				049BD2192D7E503800BBE2CE /* XCRemoteSwiftPackageReference "KDCircularProgress" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 04CFDCEC2D6E6EC90085F500 /* Products */;
@@ -588,7 +592,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		04CFDDBF2D6E89BA0085F500 /* XCRemoteSwiftPackageReference "ece564login" */ = {
+		049BD2142D7E4EC000BBE2CE /* XCRemoteSwiftPackageReference "ece564login" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@gitlab.oit.duke.edu:kits/ECE-564-01-Sp25/ece564login.git";
 			requirement = {
@@ -596,13 +600,26 @@
 				kind = branch;
 			};
 		};
+		049BD2192D7E503800BBE2CE /* XCRemoteSwiftPackageReference "KDCircularProgress" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kaandedeoglu/KDCircularProgress.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.4;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		04CFDDC02D6E89BA0085F500 /* ECE564Login */ = {
+		049BD2152D7E4EC000BBE2CE /* ECE564Login */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 04CFDDBF2D6E89BA0085F500 /* XCRemoteSwiftPackageReference "ece564login" */;
+			package = 049BD2142D7E4EC000BBE2CE /* XCRemoteSwiftPackageReference "ece564login" */;
 			productName = ECE564Login;
+		};
+		049BD21A2D7E503800BBE2CE /* KDCircularProgress */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 049BD2192D7E503800BBE2CE /* XCRemoteSwiftPackageReference "KDCircularProgress" */;
+			productName = KDCircularProgress;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

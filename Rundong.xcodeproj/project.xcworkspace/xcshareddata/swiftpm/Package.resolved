@@ -1,5 +1,5 @@
 {
-  "originHash" : "1bfc7de0bf9f637a60cc64d9e5022b24a7dc5924acd0b7fbc88f084c5f10e8a4",
+  "originHash" : "02644c4d2c9cdbb1a1a0fe5f5d76cb53a625260116ce62a02ff5feddc6d7c826",
   "pins" : [
     {
       "identity" : "ece564login",
@@ -8,6 +8,15 @@
       "state" : {
         "branch" : "main",
         "revision" : "474e069d58544b8f8e25cff027fa283e4d903e6a"
+      }
+    },
+    {
+      "identity" : "kdcircularprogress",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kaandedeoglu/KDCircularProgress.git",
+      "state" : {
+        "revision" : "a0f30e0605b7ac91ac1b243efd9914b3fd592ad3",
+        "version" : "1.5.4"
       }
     },
     {

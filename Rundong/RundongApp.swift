@@ -7,13 +7,13 @@
 
 import SwiftUI
 import SwiftData
+import ECE564Login
 
 @main
 struct RundongApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
-            DukePerson.self,    // add DukePerson
+            DukePerson.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -24,10 +24,28 @@ struct RundongApp: App {
         }
     }()
 
+    @StateObject private var personListVM = PersonListViewModel()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TabView {
+                NavigationStack {
+                    PersonListView()
+                        .environmentObject(personListVM)
+                }
+                .tabItem {
+                    Label("List", systemImage: "person.3")
+                }
+                
+                NavigationStack {
+                    Text("Teams View Coming Soon")
+                        .navigationTitle("Teams")
+                }
+                .tabItem {
+                    Label("Teams", systemImage: "person.3.sequence")
+                }
+            }
+            .modelContainer(sharedModelContainer)
         }
-        .modelContainer(sharedModelContainer)
     }
 }
