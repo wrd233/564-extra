@@ -34,10 +34,12 @@ struct MainTabView: View {
                 }
                 .tag(1)
             }
+            .tint(Color("primaryColor"))
             
             // Add the login component from original code
             ECE564Login()
         }
+        .background(Color("backgroundColor"))
     }
 }
 

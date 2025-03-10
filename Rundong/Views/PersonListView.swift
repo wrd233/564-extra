@@ -66,6 +66,8 @@ struct PersonListView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden) // 使列表背景透明
+            .background(Color("backgroundColor"))
         }
         .navigationTitle("Persons (\(filteredPersons.count))")
         .toolbar {

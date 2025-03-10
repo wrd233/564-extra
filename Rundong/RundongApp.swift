@@ -23,11 +23,16 @@ struct RundongApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+    
+    @StateObject private var personListVM = PersonListViewModel()
 
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                .environmentObject(personListVM)
                 .modelContainer(sharedModelContainer)
+                .accentColor(Color("primaryColor"))
+                .tint(Color("primaryColor"))
         }
     }
 }
