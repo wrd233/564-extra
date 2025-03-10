@@ -65,7 +65,7 @@ struct TeamMemberView: View {
     let person: DukePerson
     
     var body: some View {
-        NavigationLink(destination: PersonView(person: person)) {
+        NavigationLink(destination: PersonView(person: person, fromTeamsView: true)) {
             VStack {
                 // Profile image
                 if !person.picture.isEmpty {

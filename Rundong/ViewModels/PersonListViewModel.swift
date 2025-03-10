@@ -70,10 +70,19 @@ class PersonListViewModel: ObservableObject {
         case .lastName:
             return SortDescriptor(\DukePerson.lName)
         case .role, .gender, .plan, .program:
-            // For enum types, we'll handle sorting in the grouping function
-            // Just return a default sort by DUID
+            // For enum types, use DUID as a stable secondary sort
             return SortDescriptor(\DukePerson.DUID)
         }
+    }
+    
+    // Get FetchDescriptor with predicate for search
+    func getFetchDescriptor() -> FetchDescriptor<DukePerson> {
+        var descriptor = FetchDescriptor<DukePerson>()
+        
+        // Add sort descriptor
+        descriptor.sortBy = [getSortDescriptor()]
+        
+        return descriptor
     }
     
     // Download all entries and replace existing data
@@ -109,6 +118,7 @@ class PersonListViewModel: ObservableObject {
                             print("Downloaded \(dtoArray.count) persons")
                             
                             // Hide progress after completion
+                            self?.progress = 1.0
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                                 self?.isShowingProgress = false
                                 self?.progress = 0.0
@@ -168,6 +178,7 @@ class PersonListViewModel: ObservableObject {
                             print("Updated with \(dtoArray.count) persons")
                             
                             // Hide progress after completion
+                            self?.progress = 1.0
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                                 self?.isShowingProgress = false
                                 self?.progress = 0.0
@@ -208,70 +219,75 @@ class PersonListViewModel: ObservableObject {
         person.picture = dto.picture
     }
     
-    // Filter persons based on search text
-    func filteredPersons(_ persons: [DukePerson]) -> [DukePerson] {
-        guard !searchText.isEmpty else {
-            return persons
-        }
-        
-        return persons.filter { person in
-            person.description.lowercased().contains(searchText.lowercased())
-        }
-    }
-    
     // Group persons based on current sort option
     func groupPersons(_ persons: [DukePerson]) -> [(key: String, persons: [DukePerson])] {
-        // If sorting by name, just return a single group with sorted persons
-        if currentSortOption == .firstName {
-            let sortedPersons = persons.sorted { $0.fName < $1.fName }
-            return [("All", sortedPersons)]
-        } else if currentSortOption == .lastName {
-            let sortedPersons = persons.sorted { $0.lName < $1.lName }
-            return [("All", sortedPersons)]
-        }
-        
-        // For other sort options, group by the appropriate property
-        var groups: [String: [DukePerson]] = [:]
+        // First, sort persons according to the selected criteria
+        let sortedPersons: [DukePerson]
         
         switch currentSortOption {
+        case .firstName:
+            sortedPersons = persons.sorted { $0.fName < $1.fName }
+            return [("All", sortedPersons)]
+            
+        case .lastName:
+            sortedPersons = persons.sorted { $0.lName < $1.lName }
+            return [("All", sortedPersons)]
+            
         case .role:
-            for person in persons {
-                let key = person.role.rawValue
-                if groups[key] == nil {
-                    groups[key] = []
+            // Define order of role display
+            let roleOrder: [Role] = [.Professor, .TA, .Student, .Other, .Unknown]
+            var result: [(key: String, persons: [DukePerson])] = []
+            
+            // Group by role
+            for role in roleOrder {
+                let filteredPersons = persons.filter { $0.role == role }
+                if !filteredPersons.isEmpty {
+                    result.append((key: role.rawValue, persons: filteredPersons))
                 }
-                groups[key]?.append(person)
             }
+            return result
+            
         case .gender:
-            for person in persons {
-                let key = person.gender.rawValue
-                if groups[key] == nil {
-                    groups[key] = []
+            // Define order of gender display
+            let genderOrder: [Gender] = [.Male, .Female, .Other, .Unknown]
+            var result: [(key: String, persons: [DukePerson])] = []
+            
+            // Group by gender
+            for gender in genderOrder {
+                let filteredPersons = persons.filter { $0.gender == gender }
+                if !filteredPersons.isEmpty {
+                    result.append((key: gender.rawValue, persons: filteredPersons))
                 }
-                groups[key]?.append(person)
             }
+            return result
+            
         case .plan:
-            for person in persons {
-                let key = person.plan.rawValue
-                if groups[key] == nil {
-                    groups[key] = []
+            // Define order of plan display
+            let planOrder: [Plan] = [.CS, .ECE, .FinTech, .Other, .NotApplicable]
+            var result: [(key: String, persons: [DukePerson])] = []
+            
+            // Group by plan
+            for plan in planOrder {
+                let filteredPersons = persons.filter { $0.plan == plan }
+                if !filteredPersons.isEmpty {
+                    result.append((key: plan.rawValue, persons: filteredPersons))
                 }
-                groups[key]?.append(person)
             }
+            return result
+            
         case .program:
-            for person in persons {
-                let key = person.program.rawValue
-                if groups[key] == nil {
-                    groups[key] = []
+            // Define order of program display
+            let programOrder: [Program] = [.MENG, .MS, .PHD, .BA, .BS, .Other, .NotApplicable]
+            var result: [(key: String, persons: [DukePerson])] = []
+            
+            // Group by program
+            for program in programOrder {
+                let filteredPersons = persons.filter { $0.program == program }
+                if !filteredPersons.isEmpty {
+                    result.append((key: program.rawValue, persons: filteredPersons))
                 }
-                groups[key]?.append(person)
             }
-        default:
-            groups["All"] = persons
+            return result
         }
-        
-        // Convert dictionary to array of tuples
-        return groups.map { (key: $0.key, persons: $0.value) }
-            .sorted { $0.key < $1.key }
     }
 }

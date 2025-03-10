@@ -12,6 +12,9 @@ struct BackPersonView: View {
     @ObservedObject var vm: PersonViewModel
     let modelContext: ModelContext
     
+    // Flag to track if we're coming from Teams view
+    var fromTeamsView: Bool = false
+    
     @State private var showingAlert = false
     @State private var alertMessage: String = ""
     
@@ -86,43 +89,46 @@ struct BackPersonView: View {
                 )
                 .padding()
                 
-                HStack {
-                    if vm.isEditing {
-                        Button("Cancel") {
-                            vm.cancelEditing()
-                        }
-                        .buttonStyle(.bordered)
-                        
-                        Button("Save") {
-                            // Validate inputs
-                            if let error = validateInputs() {
-                                alertMessage = error
-                                showingAlert = true
-                            } else {
-                                vm.saveChanges(context: modelContext)
+                // Only show edit controls if not coming from Teams view
+                if !fromTeamsView {
+                    HStack {
+                        if vm.isEditing {
+                            Button("Cancel") {
+                                vm.cancelEditing()
                             }
-                        }
-                        .buttonStyle(.borderedProminent)
-                    } else {
-                        Button("Edit") {
-                            vm.startEditing()
-                        }
-                        .buttonStyle(.borderedProminent)
-                        
-                        Button("Upload"){
-                            // Check if current logged-in netID matches form
-                            let currentNetID = AuthenticationUtils.getCurrentUserNetID() ?? ""
-                            if vm.draftPerson.netID != currentNetID {
-                                showingAlert = true
-                                alertMessage = "This is not your personal information"
-                            } else {
-                                Task { await vm.upload() }
+                            .buttonStyle(.bordered)
+                            
+                            Button("Save") {
+                                // Validate inputs
+                                if let error = validateInputs() {
+                                    alertMessage = error
+                                    showingAlert = true
+                                } else {
+                                    vm.saveChanges(context: modelContext)
+                                }
                             }
+                            .buttonStyle(.borderedProminent)
+                        } else {
+                            Button("Edit") {
+                                vm.startEditing()
+                            }
+                            .buttonStyle(.borderedProminent)
+                            
+                            Button("Upload"){
+                                // Check if current logged-in netID matches form
+                                let currentNetID = AuthenticationUtils.getCurrentUserNetID() ?? ""
+                                if vm.draftPerson.netID != currentNetID {
+                                    showingAlert = true
+                                    alertMessage = "This is not your personal information"
+                                } else {
+                                    Task { await vm.upload() }
+                                }
+                            }
+                            .buttonStyle(.borderedProminent)
                         }
-                        .buttonStyle(.borderedProminent)
                     }
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
             }
             .padding()
         }
