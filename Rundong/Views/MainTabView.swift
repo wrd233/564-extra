@@ -1,11 +1,3 @@
-//
-//  MainTabView.swift
-//  Rundong
-//
-//  Created by MAC on 2025/3/10.
-//
-
-
 import SwiftUI
 import ECE564Login
 
@@ -16,7 +8,7 @@ struct MainTabView: View {
     var body: some View {
         ZStack {
             TabView(selection: $selectedTab) {
-                // First tab - Person List
+                // -----Person List-----
                 NavigationStack {
                     PersonListView()
                 }
@@ -25,7 +17,7 @@ struct MainTabView: View {
                 }
                 .tag(0)
                 
-                // Second tab - Teams View (placeholder for now)
+                // -----Teams View-----
                 NavigationStack {
                     TeamsView()
                 }
@@ -36,7 +28,6 @@ struct MainTabView: View {
             }
             .tint(Color("primaryColor"))
             
-            // Add the login component from original code
             ECE564Login()
         }
         .background(Color("backgroundColor"))

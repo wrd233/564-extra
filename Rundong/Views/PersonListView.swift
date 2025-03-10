@@ -38,11 +38,9 @@ struct PersonListView: View {
     
     var body: some View {
         VStack {
-            // Search bar
             SearchBar(searchText: $vm.searchText)
                 .padding(.top, 8)
             
-            // List content
             List {
                 ForEach(groupedPersons, id: \.key) { group in
                     Section(header: Text(group.key)) {
@@ -66,18 +64,16 @@ struct PersonListView: View {
                     }
                 }
             }
-            .scrollContentBackground(.hidden) // 使列表背景透明
+            .scrollContentBackground(.hidden)
             .background(Color("backgroundColor"))
         }
         .navigationTitle("Persons (\(filteredPersons.count))")
         .toolbar {
-            // Exit button
             ToolbarItem(placement: .navigationBarLeading) {
                 Button("Exit") {
                     exit(0)
                 }
             }
-            // Sort button
             ToolbarItem(placement: .navigationBarLeading) {
                 Menu {
                     ForEach(PersonListViewModel.SortOption.allCases, id: \.self) { option in
@@ -89,13 +85,11 @@ struct PersonListView: View {
                     Label("Sort", systemImage: "arrow.up.arrow.down")
                 }
             }
-            // Download button
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Download") {
                     isShowingDownloadOptions = true
                 }
             }
-            // Add button
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     isShowingAddPerson = true
@@ -118,7 +112,6 @@ struct PersonListView: View {
             Button("Cancel", role: .cancel) { }
         }
         .overlay {
-            // Progress overlay
             if vm.isShowingProgress {
                 DownloadOverlayView(progress: $vm.progress, isShowing: $vm.isShowingProgress)
             }
@@ -136,12 +129,10 @@ struct PersonListView: View {
             }
         }
         .onAppear {
-            // Initialize if needed
             vm.loadInitialData(context: modelContext, persons: Array(persons))
         }
     }
     
-    // Remove a person
     private func removePerson(_ person: DukePerson) {
         modelContext.delete(person)
         do {
@@ -152,7 +143,7 @@ struct PersonListView: View {
     }
 }
 
-// Search bar component (from original project)
+// Search bar component
 struct SearchBar: View {
     @Binding var searchText: String
     
@@ -181,7 +172,7 @@ struct SearchBar: View {
     }
 }
 
-// Download overlay view (simplified from original project)
+// Download overlay view
 struct DownloadOverlayView: View {
     @Binding var progress: Float
     @Binding var isShowing: Bool
@@ -207,19 +198,16 @@ struct DownloadOverlayView: View {
                 
                 // Custom circular progress
                 ZStack {
-                    // Track
                     Circle()
                         .stroke(Color.gray.opacity(0.3), lineWidth: 10)
                         .frame(width: 100, height: 100)
                     
-                    // Progress indicator
                     Circle()
                         .trim(from: 0, to: CGFloat(progress))
                         .stroke(Color.blue, style: StrokeStyle(lineWidth: 10, lineCap: .round))
                         .frame(width: 100, height: 100)
                         .rotationEffect(.degrees(-90))
                     
-                    // Percentage text
                     Text("\(Int(progress * 100))%")
                         .font(.system(.title, design: .rounded, weight: .bold))
                         .foregroundColor(.white)
@@ -246,7 +234,6 @@ struct DownloadOverlayView: View {
                 // After animation, set isShowing to false
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                     isShowing = false
-                    // Reset states for next use
                     overlayOpacity = 1.0
                     blurRadius = 5
                 }

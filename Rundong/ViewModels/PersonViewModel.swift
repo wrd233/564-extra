@@ -1,10 +1,3 @@
-//
-//  PersonViewModel.swift
-//  Rundong
-//
-//  Created by MAC on 2025/3/10.
-//
-
 import Foundation
 import SwiftData
 
@@ -53,8 +46,6 @@ class PersonViewModel: ObservableObject {
         do {
             let success = await NetworkService.shared.upload(person: draftPerson)
             print("Upload result: \(success ? "success" : "failure")")
-        } catch {
-            print("Upload error: \(error.localizedDescription)")
         }
     }
     

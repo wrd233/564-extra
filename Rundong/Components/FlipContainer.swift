@@ -1,10 +1,3 @@
-//
-//  FlipContainer.swift
-//  Rundong
-//
-//  Created by MAC on 2025/3/10.
-//
-
 import SwiftUI
 
 struct FlipContainer<Front: View, Back: View>: View {

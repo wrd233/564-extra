@@ -1,10 +1,3 @@
-//
-//  TeamsView.swift
-//  Rundong
-//
-//  Created by MAC on 2025/3/10.
-//
-
 import SwiftUI
 import SwiftData
 
@@ -43,7 +36,7 @@ struct TeamsView: View {
                             .font(.headline)
                             .padding(.horizontal)
                         
-                        // Team members in a horizontal scrollable view
+                        // Team members 
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 16) {
                                 ForEach(teamGroup.members, id: \.DUID) { person in

@@ -1,10 +1,3 @@
-//
-//  FrontPersonView.swift
-//  Rundong
-//
-//  Created by MAC on 2025/3/10.
-//
-
 import SwiftUI
 
 struct FrontPersonView: View {
@@ -29,7 +22,6 @@ struct FrontPersonView: View {
             TextInfoBlock(content: vm.dukePerson.description)
             
             HStack {
-                // Download button
                 Button("Download") {
                     Task { await vm.download() }
                 }

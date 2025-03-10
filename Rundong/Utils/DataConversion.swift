@@ -8,7 +8,7 @@
 import SwiftData
 import Foundation
 
-// 将单个 DTO 转换为 DukePerson 实例
+// Convert a single DTO into a DukePerson instance
 func convertDTO2DukePerson(dto: DukePersonDTO) -> DukePerson {
     let gender = Gender(rawValue: dto.gender) ?? .Unknown
     let role = Role(rawValue: dto.role) ?? .Unknown
@@ -33,7 +33,7 @@ func convertDTO2DukePerson(dto: DukePersonDTO) -> DukePerson {
     )
 }
 
-// 将 DTO 数组转换为 DukePerson 实例，并通过 ModelContext 插入
+// Convert an array of DTOs into DukePerson instances and insert them via ModelContext
 func convertDTOsToDukePersons(dtoArray: [DukePersonDTO], context: ModelContext) {
     for dto in dtoArray {
         let person = convertDTO2DukePerson(dto: dto)
@@ -48,7 +48,6 @@ func convertDTOsToDukePersons(dtoArray: [DukePersonDTO], context: ModelContext) 
     }
 }
 
-// 将 DukePerson 转换为 DukePersonDTO
 func convertDukePersonToDTO(person: DukePerson) -> DukePersonDTO {
     return DukePersonDTO(
         DUID: person.DUID,

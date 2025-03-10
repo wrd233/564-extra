@@ -1,10 +1,3 @@
-//
-//  PersonListItem.swift
-//  Rundong
-//
-//  Created by MAC on 2025/3/10.
-//
-
 import SwiftUI
 
 struct PersonListItem: View {
@@ -52,26 +45,26 @@ struct PersonListItem: View {
     }
 }
 
-#Preview {
-    // Create a sample person for the preview
-    let person = DukePerson(
-        DUID: 123456,
-        netID: "test123",
-        fName: "John",
-        lName: "Doe",
-        from: "USA",
-        hobby: "Reading",
-        languages: ["Swift", "Python"],
-        moviegenre: "Sci-Fi",
-        gender: .Male,
-        role: .Student,
-        program: .MENG,
-        plan: .CS,
-        team: "Team A",
-        picture: ""
-    )
-    
-    return PersonListItem(person: person)
-        .previewLayout(.sizeThatFits)
-        .padding()
-}
+//#Preview {
+//    // Create a sample person for the preview
+//    let person = DukePerson(
+//        DUID: 123456,
+//        netID: "test123",
+//        fName: "John",
+//        lName: "Doe",
+//        from: "USA",
+//        hobby: "Reading",
+//        languages: ["Swift", "Python"],
+//        moviegenre: "Sci-Fi",
+//        gender: .Male,
+//        role: .Student,
+//        program: .MENG,
+//        plan: .CS,
+//        team: "Team A",
+//        picture: ""
+//    )
+//    
+//    return PersonListItem(person: person)
+//        .previewLayout(.sizeThatFits)
+//        .padding()
+//}

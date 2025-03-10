@@ -1,10 +1,3 @@
-//
-//  PersonView.swift
-//  Rundong
-//
-//  Created by MAC on 2025/3/10.
-//
-
 import SwiftUI
 import SwiftData
 
