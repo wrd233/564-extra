@@ -27,8 +27,7 @@ struct MainTabView: View {
                 
                 // Second tab - Teams View (placeholder for now)
                 NavigationStack {
-                    Text("Teams View Coming Soon")
-                        .navigationTitle("Teams")
+                    TeamsView()
                 }
                 .tabItem {
                     Label("Teams", systemImage: "person.3.sequence")

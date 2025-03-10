@@ -24,28 +24,10 @@ struct RundongApp: App {
         }
     }()
 
-    @StateObject private var personListVM = PersonListViewModel()
-
     var body: some Scene {
         WindowGroup {
-            TabView {
-                NavigationStack {
-                    PersonListView()
-                        .environmentObject(personListVM)
-                }
-                .tabItem {
-                    Label("List", systemImage: "person.3")
-                }
-                
-                NavigationStack {
-                    Text("Teams View Coming Soon")
-                        .navigationTitle("Teams")
-                }
-                .tabItem {
-                    Label("Teams", systemImage: "person.3.sequence")
-                }
-            }
-            .modelContainer(sharedModelContainer)
+            MainTabView()
+                .modelContainer(sharedModelContainer)
         }
     }
 }

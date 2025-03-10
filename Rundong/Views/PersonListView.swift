@@ -41,7 +41,7 @@ struct PersonListView: View {
                 ForEach(groupedPersons, id: \.key) { group in
                     Section(header: Text(group.key)) {
                         ForEach(group.persons, id: \.DUID) { person in
-                            NavigationLink(destination: Text("Person detail coming soon")) {
+                            NavigationLink(destination: PersonView(person: person)) {
                                 PersonListItem(person: person)
                             }
                             .swipeActions(edge: .trailing) {
