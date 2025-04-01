@@ -62,14 +62,14 @@ struct FrontPersonView: View {
             
             TextInfoBlock(content: vm.dukePerson.description)
             
-//            if isLoadingAudio {
-//                ProgressView("Generating audio...")
-//                    .padding()
-//            } else if let error = audioError {
-//                Text(error)
-//                    .font(.caption)
-//                    .foregroundColor(.red)
-//            }
+            if isLoadingAudio {
+                ProgressView("Generating audio...")
+                    .padding()
+            } else if let error = audioError {
+                Text(error)
+                    .font(.caption)
+                    .foregroundColor(.red)
+            }
             
             HStack {
                 Button("Download") {
@@ -91,7 +91,7 @@ struct FrontPersonView: View {
         isLoadingAudio = true
         audioError = nil
         
-        guard let url = URL(string: "https://flask564.zeabur.app/") else {
+        guard let url = URL(string: "https://flask564.zeabur.app/generate-speech") else {
             audioError = "Invalid backend URL"
             isLoadingAudio = false
             return
