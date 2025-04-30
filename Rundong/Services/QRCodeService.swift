@@ -46,86 +46,131 @@ class QRCodeService {
     
     // MARK: - QR Code Styling
     
-    /// Creates a styled QR code with Duke colors and optional logo
+    /// Creates a simple, easy-to-scan QR code
     /// - Parameters:
     ///   - url: The URL to encode
     ///   - size: The desired size of the QR code
-    ///   - addLogo: Whether to add the Duke logo in the center
-    /// - Returns: A styled UIImage containing the QR code
-    func generateStyledQRCode(from url: URL, size: CGSize, addLogo: Bool = true) -> UIImage? {
-        // Generate the basic QR code with a slightly larger size to account for scaling
-        guard let ciImage = createQRCodeCIImage(from: url.absoluteString) else {
+    /// - Returns: A UIImage containing the QR code
+    func generateStyledQRCode(from url: URL, size: CGSize, addLogo: Bool = false) -> UIImage? {
+        // Create the QR code filter
+        guard let filter = CIFilter(name: "CIQRCodeGenerator") else {
             return nil
         }
         
-        // Convert CIImage to CGImage
-        let ciContext = CIContext()
-        guard let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else {
+        // Set the message content for the QR code
+        let data = url.absoluteString.data(using: .utf8)
+        filter.setValue(data, forKey: "inputMessage")
+        
+        // Set the error correction level to H (highest) for better scan reliability
+        filter.setValue("H", forKey: "inputCorrectionLevel")
+        
+        // Get the output image
+        guard let ciImage = filter.outputImage else {
             return nil
         }
         
-        // Create a context to draw the styled QR code
+        // Create a context for rendering
+        let context = CIContext()
+        
+        // Calculate scale to fit the desired size while leaving margin
+        // The QR code should be slightly smaller than the container to ensure proper scanning
+        let extent = ciImage.extent
+        let scale = min(size.width, size.height) * 0.85 / extent.width
+        
+        // Scale the image
+        let transform = CGAffineTransform(scaleX: scale, y: scale)
+        let scaledImage = ciImage.transformed(by: transform)
+        
+        // Convert to CGImage
+        guard let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) else {
+            return nil
+        }
+        
+        // Create a new context to draw the final image
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
         defer { UIGraphicsEndImageContext() }
-        guard let context = UIGraphicsGetCurrentContext() else {
+        
+        let drawContext = UIGraphicsGetCurrentContext()!
+        
+        // Fill with white background
+        drawContext.setFillColor(UIColor.white.cgColor)
+        drawContext.fill(CGRect(origin: .zero, size: size))
+        
+        // Center the QR code
+        let drawRect = CGRect(
+            x: (size.width - scaledImage.extent.width) / 2,
+            y: (size.height - scaledImage.extent.height) / 2,
+            width: scaledImage.extent.width,
+            height: scaledImage.extent.height
+        )
+        
+        // Draw the QR code in black (best for scanning)
+        UIImage(cgImage: cgImage).draw(in: drawRect)
+        
+        // Get the result
+        return UIGraphicsGetImageFromCurrentImageContext()
+    }
+    
+    
+    /// Generates a highly scannable QR code
+    /// - Parameters:
+    ///   - url: The URL to encode
+    ///   - size: The desired size of the QR code
+    /// - Returns: A UIImage containing the QR code
+    func generateScannableQRCode(from url: URL, size: CGSize) -> UIImage? {
+        // Step 1: Generate the raw QR code with highest error correction
+        guard let data = url.absoluteString.data(using: .utf8),
+              let qrFilter = CIFilter(name: "CIQRCodeGenerator") else {
             return nil
         }
         
-        // Calculate the scale to fit the QR code into our desired size
-        let scale = min(size.width, size.height) / max(ciImage.extent.width, ciImage.extent.height)
+        qrFilter.setValue(data, forKey: "inputMessage")
+        // Use highest error correction level
+        qrFilter.setValue("H", forKey: "inputCorrectionLevel")
         
-        // 在变换之前保存状态
-        context.saveGState()
-
-        // 你的 translate/scale/draw 逻辑……
-        context.translateBy(x: size.width/2, y: size.height/2)
-        context.scaleBy(x: scale, y: scale)
-        context.translateBy(x: -ciImage.extent.width/2, y: -ciImage.extent.height/2)
-        context.setFillColor(QRCodeService.dukeBlue.cgColor)
-        context.draw(cgImage, in: ciImage.extent)
-
-        // 恢复到保存前的状态（也就把 CTM、裁剪区、线宽、颜色等等都还原了）
-        context.restoreGState()
-        
-        // Add rounded border
-        let borderPath = UIBezierPath(roundedRect: CGRect(origin: CGPoint(x: 5, y: 5),
-                                                         size: CGSize(width: size.width - 10,
-                                                                     height: size.height - 10)),
-                                      cornerRadius: 10)
-        QRCodeService.dukeBlue.setStroke()
-        borderPath.lineWidth = 2
-        borderPath.stroke()
-        
-        // Add Duke 'D' logo if requested
-        if addLogo {
-            let logoSize = CGSize(width: size.width * 0.2, height: size.height * 0.2)
-            let logoRect = CGRect(
-                x: (size.width - logoSize.width) / 2,
-                y: (size.height - logoSize.height) / 2,
-                width: logoSize.width,
-                height: logoSize.height
-            )
-            
-            // Draw white circle background for the logo
-            UIColor.white.setFill()
-            context.fillEllipse(in: logoRect.insetBy(dx: -8, dy: -8))
-            
-            // Draw the Duke 'D'
-            let font = UIFont.boldSystemFont(ofSize: logoSize.height * 0.8)
-            let textAttributes: [NSAttributedString.Key: Any] = [
-                .font: font,
-                .foregroundColor: QRCodeService.dukeBlue
-            ]
-            
-            let text = "D"
-            let textSize = text.size(withAttributes: textAttributes)
-            text.draw(at: CGPoint(
-                x: logoRect.midX - textSize.width / 2,
-                y: logoRect.midY - textSize.height / 2
-            ), withAttributes: textAttributes)
+        guard let qrImage = qrFilter.outputImage else {
+            return nil
         }
         
-        return UIGraphicsGetImageFromCurrentImageContext()
+        // Step 2: Create a larger image with plenty of white space around the QR code
+        // This ensures the "quiet zone" needed for reliable scanning
+        
+        // Convert to CGImage with proper scaling
+        let transform = CGAffineTransform(scaleX: 10, y: 10) // Significant scaling for clarity
+        let scaledQRImage = qrImage.transformed(by: transform)
+        
+        let context = CIContext()
+        guard let cgImage = context.createCGImage(scaledQRImage, from: scaledQRImage.extent) else {
+            return nil
+        }
+        
+        // Step 3: Create the final image with ample quiet zone
+        let uiImage = UIImage(cgImage: cgImage)
+        
+        // Create a new context with even more padding
+        UIGraphicsBeginImageContextWithOptions(size, true, 0)
+        
+        // Fill the entire context with white
+        UIColor.white.setFill()
+        UIBezierPath(rect: CGRect(origin: .zero, size: size)).fill()
+        
+        // Draw the QR code centered, using only 70% of the available space
+        // to ensure generous white margins
+        let drawWidth = size.width * 0.7
+        let drawHeight = size.height * 0.7
+        let drawRect = CGRect(
+            x: (size.width - drawWidth) / 2,
+            y: (size.height - drawHeight) / 2,
+            width: drawWidth,
+            height: drawHeight
+        )
+        
+        uiImage.draw(in: drawRect)
+        
+        let finalImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return finalImage
     }
 
     // Helper method to create a CIImage for the QR code

@@ -69,7 +69,7 @@ class PDFService {
     
     // MARK: - Private Drawing Methods
     
-    private func drawBackground(in context: CGContext) {
+    internal func drawBackground(in context: CGContext) {
         // Fill the entire card with background color
         context.setFillColor(BusinessCardTemplate.backgroundColor.cgColor)
         context.fill(CGRect(origin: .zero, size: BusinessCardTemplate.size))
@@ -85,7 +85,7 @@ class PDFService {
         context.fill(headerRect)
     }
     
-    private func drawHeader(for person: DukePerson, in context: CGContext) {
+    internal func drawHeader(for person: DukePerson, in context: CGContext) {
         // Draw "DUKE UNIVERSITY" text in header
         let headerText = "DUKE UNIVERSITY"
         let headerAttrs: [NSAttributedString.Key: Any] = [
@@ -100,7 +100,7 @@ class PDFService {
         (headerText as NSString).draw(in: headerTextRect, withAttributes: headerAttrs)
     }
     
-    private func drawAvatar(for person: DukePerson, in context: CGContext) {
+    internal func drawAvatar(for person: DukePerson, in context: CGContext) {
         // Position for avatar
         let avatarRect = CGRect(
             x: BusinessCardTemplate.margin,
@@ -156,7 +156,7 @@ class PDFService {
         }
     }
     
-    private func drawPersonInfo(for person: DukePerson, in context: CGContext) {
+    internal func drawPersonInfo(for person: DukePerson, in context: CGContext) {
         // Starting position for text (to the right of the avatar)
         let textX = BusinessCardTemplate.margin * 2 + BusinessCardTemplate.avatarSize.width
         var textY: CGFloat = 40
@@ -223,7 +223,7 @@ class PDFService {
         )
     }
     
-    private func drawFooter(for person: DukePerson, in context: CGContext) {
+    internal func drawFooter(for person: DukePerson, in context: CGContext) {
         // Position for footer
         let footerY = BusinessCardTemplate.size.height - BusinessCardTemplate.margin - 12
         
