@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import PDFKit
 
 struct FrontPersonView: View {
     @ObservedObject var vm: PersonViewModel
@@ -10,6 +11,8 @@ struct FrontPersonView: View {
     @State private var audioPlayer: AVAudioPlayer?
     @State private var isLoadingAudio: Bool = false
     @State private var audioError: String? = nil
+    
+    @State private var showingPDFPreview = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -77,10 +80,61 @@ struct FrontPersonView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(vm.isLoading)
+                
+                Button {
+                    vm.generatePDF()
+                } label: {
+                    HStack {
+                        Image(systemName: "doc.text.viewfinder")
+                        Text("Generate Card")
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(vm.isLoading)
             }
             .padding()
         }
         .padding()
+        .overlay {
+            // Show loading indicator when generating PDF
+            if case .generating = vm.pdfState {
+                Color.black.opacity(0.3)
+                    .edgesIgnoringSafeArea(.all)
+                    .overlay {
+                        VStack {
+                            ProgressView()
+                                .scaleEffect(1.5)
+                            Text("Generating business card...")
+                                .padding(.top)
+                                .foregroundColor(.white)
+                        }
+                        .padding()
+                        .background(Color.gray.opacity(0.7))
+                        .cornerRadius(10)
+                    }
+            }
+        }
+        .onChange(of: vm.pdfState) { oldState, newState in
+            if case .success(let url) = newState {
+                showingPDFPreview = true
+            } else if case .failure(let error) = newState {
+                // Handle error (could add an alert here)
+                print("PDF generation failed: \(error)")
+            }
+        }
+        .sheet(isPresented: $showingPDFPreview) {
+            // Reset PDF state when preview is dismissed
+            vm.resetPDFState()
+        } content: {
+            if case .success(let url) = vm.pdfState {
+                PDFPreviewView(pdfURL: url) {
+                    showingPDFPreview = false
+                }
+            } else {
+                Text("Error loading PDF")
+                    .padding()
+            }
+        }
         .background(Color(.systemBackground))
         .cornerRadius(10)
         .shadow(radius: 5)

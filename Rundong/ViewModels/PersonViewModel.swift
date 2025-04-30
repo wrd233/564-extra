@@ -3,6 +3,31 @@ import SwiftData
 
 @MainActor
 class PersonViewModel: ObservableObject {
+    // PDF generation states
+    enum PDFGenerationState: Equatable {
+        case idle
+        case generating
+        case success(URL)
+        case failure(String)
+        
+        // We need to implement the == operator for our custom enum with associated values
+        static func == (lhs: PDFGenerationState, rhs: PDFGenerationState) -> Bool {
+            switch (lhs, rhs) {
+            case (.idle, .idle):
+                return true
+            case (.generating, .generating):
+                return true
+            case (.success(let lhsURL), .success(let rhsURL)):
+                return lhsURL == rhsURL
+            case (.failure(let lhsError), .failure(let rhsError)):
+                return lhsError == rhsError
+            default:
+                return false
+            }
+        }
+    }
+    @Published var pdfState: PDFGenerationState = .idle
+    
     @Published var dukePerson: DukePerson
     
     // Download-related status
