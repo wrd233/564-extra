@@ -31,8 +31,8 @@ struct RundongApp: App {
             MainTabView()
                 .environmentObject(personListVM)
                 .modelContainer(sharedModelContainer)
-                .accentColor(Color("primaryColor"))
-                .tint(Color("primaryColor"))
+                .accentColor(Color("AppPrimaryColor"))
+                .tint(Color("AppPrimaryColor"))
         }
     }
 }

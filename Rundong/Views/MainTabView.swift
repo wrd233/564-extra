@@ -26,7 +26,7 @@ struct MainTabView: View {
                 }
                 .tag(1)
             }
-            .tint(Color("primaryColor"))
+            .tint(Color("AppPrimaryColor"))
             
             ECE564Login()
         }
