@@ -130,12 +130,11 @@ struct FrontPersonView: View {
                     }
             }
         }
-        .onChange(of: vm.pdfState) { newState in
+        .onChange(of: vm.pdfState) { oldState, newState in
             switch newState {
             case .success, .successWithImage:
                 showingPDFPreview = true
             case .failure(let error):
-                // Handle error
                 print("PDF generation failed: \(error)")
             default:
                 break
@@ -209,11 +208,18 @@ struct FrontPersonView: View {
                                         applicationActivities: nil
                                     )
                                     
-                                    // Get current view controller and present share menu
-                                    UIApplication.shared.windows.first?.rootViewController?.present(
-                                        activityVC,
-                                        animated: true
-                                    )
+                                    let scenes = UIApplication.shared.connectedScenes
+                                        .filter { $0.activationState == .foregroundActive }
+                                        .compactMap { $0 as? UIWindowScene }
+
+                                    if let windowScene = scenes.first {
+                                        // 从这个 scene 的 windows 中找 key window
+                                        if let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }),
+                                           let rootVC = keyWindow.rootViewController {
+                                            // 再去 present
+                                            rootVC.present(activityVC, animated: true)
+                                        }
+                                    }
                                 } label: {
                                     Label("Share Link", systemImage: "square.and.arrow.up")
                                 }
@@ -268,10 +274,66 @@ struct FrontPersonView: View {
         .shadow(radius: 5)
     }
     
-    // Existing methods remain unchanged
     private func generateAndPlaySpeech() {
-        // Existing implementation
+        isLoadingAudio = true
+        audioError = nil
+        
+        guard let url = URL(string: "https://flask564.zeabur.app/generate-speech") else {
+            audioError = "Invalid backend URL"
+            isLoadingAudio = false
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let payload: [String: String] = ["text": vm.dukePerson.description]
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+        } catch {
+            audioError = "Error preparing request"
+            isLoadingAudio = false
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isLoadingAudio = false
+                
+                if let error = error {
+                    audioError = "Network error: \(error.localizedDescription)"
+                    return
+                }
+                
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    audioError = "Invalid response"
+                    return
+                }
+                
+                if !(200...299).contains(httpResponse.statusCode) {
+                    audioError = "Server error: \(httpResponse.statusCode)"
+                    return
+                }
+                
+                guard let data = data else {
+                    audioError = "No data received"
+                    return
+                }
+            
+                do {
+                    audioPlayer = try AVAudioPlayer(data: data)
+                    audioPlayer?.prepareToPlay()
+                    audioPlayer?.play()
+                } catch {
+                    audioError = "Error playing audio"
+                    print("Audio playback error: \(error)")
+                }
+            }
+        }.resume()
     }
+
 }
 
 
@@ -378,5 +440,4 @@ struct TextInfoBlock: View {
     return FrontPersonView(vm: viewModel)
         .preferredColorScheme(.dark) 
         .padding()
-        .previewLayout(.sizeThatFits)
 }
