@@ -69,6 +69,7 @@ class DukePerson: CustomStringConvertible {
     var plan:Plan
     var team:String
     var picture:String
+    var cardImageURL: String = ""  // 存储名片图片的在线URL
     var email: String {
         ("\(self.netID)@duke.edu")
     }

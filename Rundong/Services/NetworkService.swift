@@ -128,4 +128,52 @@ class NetworkService {
         request.setValue(authHeader, forHTTPHeaderField: "Authorization")
         return request
     }
+    
+    func uploadCardImage(imageData: Data, filename: String) async throws -> URL {
+        guard let url = URL(string: "https://flask564.zeabur.app/upload-image") else {
+            throw URLError(.badURL)
+        }
+        
+        // 构建multipart请求
+        let boundary = UUID().uuidString
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        // 构建表单数据
+        var body = Data()
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"\(filename)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        request.httpBody = body
+        
+        // 发送请求
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        // 验证响应状态
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+        
+        // 解析返回的URL
+        struct UploadResponse: Codable {
+            let success: Bool
+            let url: String
+            let file_name: String
+        }
+        
+        let decoder = JSONDecoder()
+        let uploadResponse = try decoder.decode(UploadResponse.self, from: data)
+        
+        // 这是服务器返回的可访问URL
+        guard let serverURL = URL(string: uploadResponse.url) else {
+            throw URLError(.badURL)
+        }
+        
+        return serverURL
+    }
 }

@@ -221,4 +221,14 @@ class QRCodeService {
             print("Error cleaning up QR code files: \(error)")
         }
     }
+    
+    func generateQRCodeForCard(person: DukePerson) -> UIImage? {
+        // 如果已有卡片URL，直接用它生成QR码
+        if !person.cardImageURL.isEmpty, let url = URL(string: person.cardImageURL) {
+            return QRCodeService.shared.generateScannableQRCode(from: url, size: CGSize(width: 200, height: 200))
+        }
+        
+        // 如果没有URL，可以返回null或显示错误提示
+        return nil
+    }
 }

@@ -7,6 +7,7 @@ struct FrontPersonView: View {
     @State private var haloScale: CGFloat = 1.0
     @State private var haloOpacity: Double = 0.6
     @State private var locationTextColor: Color = .blue
+    @Environment(\.modelContext) private var modelContext
     
     @State private var audioPlayer: AVAudioPlayer?
     @State private var isLoadingAudio: Bool = false
@@ -91,6 +92,21 @@ struct FrontPersonView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(vm.isLoading)
+                
+                Button {
+                    Task {
+                        // 通过环境传递ModelContext
+                        await vm.generateAndUploadCard(modelContext: modelContext)
+                    }
+                } label: {
+                    HStack {
+                        Image(systemName: "square.and.arrow.up")
+                        Text("生成在线名片")
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(vm.isLoading || vm.pdfState == .generating)
+                
             }
             .padding()
         }
@@ -133,6 +149,71 @@ struct FrontPersonView: View {
             } else {
                 Text("Error loading PDF")
                     .padding()
+            }
+            
+            
+            if !vm.dukePerson.cardImageURL.isEmpty {
+                VStack(spacing: 12) {
+                    Text("您的在线名片")
+                        .font(.headline)
+                    
+                    // 显示已保存的QR码
+                    if let url = URL(string: vm.dukePerson.cardImageURL),
+                       let qrCode = QRCodeService.shared.generateScannableQRCode(
+                        from: url,
+                        size: CGSize(width: 120, height: 120)
+                    ) {
+                        Image(uiImage: qrCode)
+                            .interpolation(.none)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 120, height: 120)
+                            .background(Color.white)
+                            .padding(4)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                            )
+                    }
+                    
+                    Text("扫描查看")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    HStack {
+                        Button {
+                            // 分享URL
+                            guard let url = URL(string: vm.dukePerson.cardImageURL) else { return }
+                            let activityVC = UIActivityViewController(
+                                activityItems: [url],
+                                applicationActivities: nil
+                            )
+                            
+                            // 获取当前视图控制器并呈现分享菜单
+                            UIApplication.shared.windows.first?.rootViewController?.present(
+                                activityVC,
+                                animated: true
+                            )
+                        } label: {
+                            Label("分享链接", systemImage: "square.and.arrow.up")
+                        }
+                        .buttonStyle(.bordered)
+                        
+                        Button {
+                            // 刷新生成
+                            Task {
+                                await vm.generateAndUploadCard(modelContext: modelContext)
+                            }
+                        } label: {
+                            Label("重新生成", systemImage: "arrow.triangle.2.circlepath")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+                .padding()
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(12)
+                .padding(.horizontal)
             }
         }
         .background(Color(.systemBackground))

@@ -67,6 +67,65 @@ class PDFService {
         }
     }
     
+    // 将PDF转换为图片
+    func convertPDFToImage(pdfURL: URL, scale: CGFloat = 2.0) -> UIImage? {
+        guard let document = PDFDocument(url: pdfURL),
+              let page = document.page(at: 0) else {
+            return nil
+        }
+        
+        // 获取PDF页面的尺寸
+        let pageRect = page.bounds(for: .mediaBox)
+        
+        // 创建适当大小的图像上下文
+        let renderer = UIGraphicsImageRenderer(size: CGSize(
+            width: pageRect.width * scale,
+            height: pageRect.height * scale
+        ))
+        
+        // 渲染PDF为图片
+        let img = renderer.image { ctx in
+            // 填充白色背景
+            UIColor.white.set()
+            ctx.fill(CGRect(origin: .zero, size: renderer.format.bounds.size))
+            
+            // 缩放图像以获得更高质量
+            ctx.cgContext.scaleBy(x: scale, y: scale)
+            
+            // 绘制PDF页面
+            page.draw(with: .mediaBox, to: ctx.cgContext)
+        }
+        
+        return img
+    }
+    
+    
+    // 生成PDF、转换为图片并上传到服务器
+    func generateAndUploadCard(for person: DukePerson) async throws -> URL {
+        // 1. 生成PDF
+        guard let pdfURL = generateBusinessCard(for: person) else {
+            throw NSError(domain: "PDFService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to generate PDF"])
+        }
+        
+        // 2. 转换为图片
+        guard let cardImage = convertPDFToImage(pdfURL: pdfURL) else {
+            throw NSError(domain: "PDFService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to convert PDF to image"])
+        }
+        
+        // 3. 准备图片数据
+        guard let imageData = cardImage.jpegData(compressionQuality: 0.9) else {
+            throw NSError(domain: "PDFService", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to create image data"])
+        }
+        
+        // 4. 上传图片
+        let filename = "card_\(person.netID)_\(Int(Date().timeIntervalSince1970)).jpg"
+        // 上传图片并获取URL
+        let serverURL = try await NetworkService.shared.uploadCardImage(imageData: imageData, filename: filename)
+        
+        // 返回服务器URL
+        return serverURL
+    }
+    
     // MARK: - Private Drawing Methods
     
     internal func drawBackground(in context: CGContext) {
